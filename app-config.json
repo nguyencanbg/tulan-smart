@@ -1,0 +1,13 @@
+{
+  "app": {
+    "title": "Tự Lạn Smart",
+    "headerColor": "#0068ff",
+    "textColor": "white"
+  },
+  "listPages": [ "pages/home" ],
+  "ids": {
+    "appId": "3766346326976859974",
+    "miniAppId": "2763303694228622987",
+    "oaId": "155482019626526050"
+  }
+}
