@@ -4,10 +4,29 @@
     "headerColor": "#0068ff",
     "textColor": "white"
   },
-  "listPages": [ "pages/home" ],
+  "listPages": ["pages/home"],
   "ids": {
-    "appId": "3766346326976859974",
+    "appId": "2763303694228622987",
     "miniAppId": "2763303694228622987",
     "oaId": "155482019626526050"
-  }
+  },
+  "webview": {
+    "domains": [
+      "https://dichvucong.gov.vn",
+      "https://tu-lan-dvc-ai-v3.vercel.app/",
+      "https://tulanbacninh.netlify.app/",
+      "https://chatbot-dvc-zalo.vercel.app/",
+      "https://bit.ly/tulanai",
+      "https://tulan.bacninh.gov.vn",
+      "https://zalo.me"
+    ]
+  },
+  "listSyncJS": [
+    "assets/index-2293d9ed.js"
+  ],
+  "listCSS": [
+    "assets/index-1a01890b.css"
+  ],
+  "listAsyncJS": [],
+  "permissions": ["tel"]
 }

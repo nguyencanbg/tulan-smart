@@ -1,0 +1,12 @@
+{
+  "appId": "2763303694228622987",
+  "type": "mini-app",
+  "dist": "dist",
+  "listSyncJS": [
+    "assets/index-mgV4t1S3.js"
+  ],
+  "listAsyncJS": [],
+  "listCSS": [
+    "assets/index-uh_GsEle.css"
+  ]
+}

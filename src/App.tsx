@@ -6,8 +6,10 @@ import HomePage from "./pages/home";
 const App = () => {
   return (
     <AnimationRoutes>
-      <Route path="/" element={<HomePage />}></Route>
+      {/* Trang chủ */}
+      <Route path="/" element={<HomePage />} />
     </AnimationRoutes>
   );
 };
+
 export default App;
