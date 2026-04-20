@@ -298,9 +298,46 @@ const NghiQuyetSection = () => {
   );
 };
 
+// ==================== COMPONENT FOOTER ====================
+const AppFooter = ({ onHome, onContact, onHotline, onManage, isHomeActive = false }) => {
+  return (
+    <div style={{
+      position: 'fixed',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      height: 60,
+      background: '#fff',
+      borderTop: '1px solid #ddd',
+      zIndex: 1000,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-around',
+      boxShadow: '0 -2px 8px rgba(0,0,0,0.05)'
+    }}>
+      <div style={{ cursor: 'pointer', textAlign: 'center' }} onClick={onHome}>
+        <Text size="small" style={{ color: isHomeActive ? '#0068ff' : '#666', fontWeight: isHomeActive ? 'bold' : 'normal' }}>🏠 Trang chủ</Text>
+      </div>
+      <div style={{ cursor: 'pointer', textAlign: 'center' }} onClick={onContact}>
+        <Text size="small" style={{ color: '#666' }}>💬 Liên hệ</Text>
+      </div>
+      <div style={{ cursor: 'pointer', textAlign: 'center' }} onClick={onHotline}>
+        <Text size="small" style={{ color: '#666' }}>📞 Đường dây nóng</Text>
+      </div>
+      <div style={{ cursor: 'pointer', textAlign: 'center' }} onClick={onManage}>
+        <Text size="small" style={{ color: '#666' }}>⚙️ Q.lý</Text>
+      </div>
+    </div>
+  );
+};
+
 // ==================== COMPONENT CHÍNH ====================
 const TulanSmartApp = () => {
   const [view, setView] = useState("home");
+  const [viewMore, setViewMore] = useState(false);
+  const [pageAnim, setPageAnim] = useState("enter");
+  const [direction, setDirection] = useState(1);
+
   const [slide, setSlide] = useState(0);
   const [sttData, setSttData] = useState(null);
   const [newsList, setNewsList] = useState([]);
@@ -335,10 +372,9 @@ const TulanSmartApp = () => {
   const CSV_URL_NEWS = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCaJI86xdJAZ2qEaKCPjtXSF5kelYEwFSlAiH0SPiymLL1vJ3Dm-7QejC56AB8jwfwty_xeR8o13cc/pub?output=csv";
   const CSV_URL_THUTUC = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRMS5dRHxCGI8oW5gBeIZfVqu5gkcXhs6t4KLx2h8J-UYIq7-kZrwbMcRN2-XaM4ny2dD8t_BKYppzm/pub?output=csv";
 
-  // Danh sách item đầy đủ (11 item)
-  // Đã chuyển 3 icon từ emoji sang ảnh
+  // Danh sách item đầy đủ (13 item)
   const allItems = [
-    { id: "datlich", title: "Đặt lịch", icon: "images/icon_datlich.png", isEmoji: false, action: () => setView("booking") },
+    { id: "datlich", title: "Đặt lịch", icon: "images/icon_datlich.png", isEmoji: false, action: () => changeView("booking") },
     { id: "maudon", title: "Mẫu đơn, Tờ khai", icon: "images/icon_mauDon.png", isEmoji: false, action: () => api.openWebview({ url: "https://script.google.com/macros/s/AKfycbwQW46V9GOs2VyAqpEo5NZ7RlM_VYgIGM3UmPgf5OMWk6HqQsXswTzQ_mN7sEk5PCd6Sg/exec" }) },
     { id: "dvc", title: "Nộp hồ sơ trực tuyến", icon: "images/icon_dvc.png", isEmoji: false, action: () => api.openWebview({ url: "https://dichvucong.gov.vn" }) },
     { id: "quyhoach", title: "Quy hoạch", icon: "images/icon_quyhoach.png", isEmoji: false, action: () => api.openWebview({ url: "https://tulan.bacninh.gov.vn/thong-tin-quy-hoach" }) },
@@ -347,11 +383,13 @@ const TulanSmartApp = () => {
     { id: "phananh", title: "Phản ánh", icon: "images/icon_phananh.png", isEmoji: false, action: () => api.openWebview({ url: "https://tulan.bacninh.gov.vn/phan-anh-kien-nghi" }) },
     { id: "tintuc", title: "Tin tức", icon: "images/icon_tintuc.png", isEmoji: false, action: () => api.openWebview({ url: "https://tulan.bacninh.gov.vn/" }) },
     { id: "truso", title: "Trụ sở", icon: "images/icon_truso.png", isEmoji: false, action: () => api.openWebview({ url: "https://www.google.com/maps/place/21%C2%B017'27.6%22N+106%C2%B002'50.1%22E/@21.2910123,106.0472348,17z/data=!4m4!3m3!8m2!3d21.2910123!4d106.0472348?entry=ttu&g_ep=EgoyMDI2MDQxMy4wIKXMDSoASAFQAw%3D%3D" }) },
+    { id: "facebook", title: "Fanpage Phường", icon: "images/icon_facebook.png", isEmoji: false, action: () => api.openWebview({ url: "https://www.facebook.com/share/1GMsKggb4X/" }) },
+    { id: "youtube", title: "YouTube Phường", icon: "images/icon_youtube.png", isEmoji: false, action: () => api.openWebview({ url: "https://www.youtube.com/channel/UCnrAYbgUzqGlEkIr24PyeUw" }) },
     { id: "lichcongtac", title: "Lịch công tác", icon: "images/icon_lichcongtac.png", isEmoji: false, action: () => api.openWebview({ url: "https://tulan.bacninh.gov.vn/lich-lam-viec" }) },
     { id: "khaosat", title: "Khảo sát", icon: "images/icon_khaosat.png", isEmoji: false, action: () => api.openWebview({ url: "https://khao-sat-frontend.vercel.app/nguyen-van-luan.html" }) }
   ];
 
-  // 🔥 Mảng màu gradient cho icon (đã thêm 4 màu mới, tổng 15 màu)
+  // 🔥 Mảng màu gradient cho icon
   const iconColors = [
     "linear-gradient(135deg, #FF6B6B, #FF8E8E)",
     "linear-gradient(135deg, #4ECDC4, #6EE7DE)",
@@ -361,16 +399,27 @@ const TulanSmartApp = () => {
     "linear-gradient(135deg, #B5EAD7, #D4F1E6)",
     "linear-gradient(135deg, #C7CEEA, #E0E6FA)",
     "linear-gradient(135deg, #FBC2EB, #FFD6F0)",
-    "linear-gradient(135deg, #84DCC6, #A8E6CF)",    // màu mới 1
-    "linear-gradient(135deg, #FF9A8B, #FF6B6B)",    // màu mới 2
-    "linear-gradient(135deg, #A1C4FD, #C2E9FB)",    // màu mới 3
-    "linear-gradient(135deg, #D4A5A5, #E4C1C1)",    // màu mới 4
-    "linear-gradient(135deg, #B8E1FC, #D0F0FD)",    // dự phòng 1
-    "linear-gradient(135deg, #FFD6A5, #FFE4B5)",    // dự phòng 2
-    "linear-gradient(135deg, #C0E0C0, #D4EAD4)"     // dự phòng 3
+    "linear-gradient(135deg, #84DCC6, #A8E6CF)",
+    "linear-gradient(135deg, #FF9A8B, #FF6B6B)",
+    "linear-gradient(135deg, #A1C4FD, #C2E9FB)",
+    "linear-gradient(135deg, #D4A5A5, #E4C1C1)",
+    "linear-gradient(135deg, #B8E1FC, #D0F0FD)",
+    "linear-gradient(135deg, #FFD6A5, #FFE4B5)",
+    "linear-gradient(135deg, #C0E0C0, #D4EAD4)"
   ];
 
-  // 🔥 Khởi tạo menuConfig (có merge với allItems để đảm bảo menu mới xuất hiện)
+  // 🔥 HÀM CHUYỂN TRANG MƯỢT
+  const changeView = (nextView) => {
+    setPageAnim("exit");
+    setTimeout(() => {
+      setDirection(nextView === "home" ? -1 : 1);
+      setView(nextView);
+      setPageAnim("enter");
+      window.scrollTo(0, 0);
+    }, 250);
+  };
+
+  // 🔥 Khởi tạo menuConfig
   const initMenu = () => {
     const defaultConfig = allItems.map((item, index) => ({
       ...item,
@@ -385,13 +434,12 @@ const TulanSmartApp = () => {
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        // 🔥 FIX: merge với allItems để đảm bảo menu mới được thêm vào
         const restored = allItems.map(item => {
           const saved = parsed.find(p => p.id === item.id);
           return {
             ...item,
             visible: saved ? saved.visible : true,
-            order: saved !== undefined ? saved.order : item.order
+            order: saved ? saved.order : 0
           };
         });
         setMenuConfig(restored);
@@ -403,7 +451,6 @@ const TulanSmartApp = () => {
     }
   }, []);
 
-  // Lưu menuConfig (loại bỏ function action trước khi lưu)
   useEffect(() => {
     if (menuConfig.length > 0) {
       const toStore = menuConfig.map(({ action, ...rest }) => rest);
@@ -411,12 +458,11 @@ const TulanSmartApp = () => {
     }
   }, [menuConfig]);
 
-  // 🔹 Bước 2: Thêm useEffect lấy userId (đặt sau các useEffect khác)
   useEffect(() => {
     const getUser = async () => {
       try {
         const user = await api.getUserInfo();
-        console.log("USER INFO:", user); // 👈 QUAN TRỌNG
+        console.log("USER INFO:", user);
         setUserId(user.id);
       } catch (e) {
         console.error("Không lấy được user", e);
@@ -425,10 +471,12 @@ const TulanSmartApp = () => {
     getUser();
   }, []);
 
-  // 🔥 Danh sách hiển thị
   const visibleItems = menuConfig
     .filter(item => item.visible)
     .sort((a, b) => a.order - b.order);
+
+  const homeItems = visibleItems.slice(0, 8);
+  const moreItems = visibleItems;
 
   const parseCSV = (csvText) => {
     const rows = [];
@@ -617,7 +665,13 @@ const TulanSmartApp = () => {
         body: JSON.stringify({ ten: name, sdt: phone, cccd, noidung: note, gio: time, ngay: date }),
       });
       const text = await res.text();
-      const result = JSON.parse(text);
+      let result;
+      try {
+        result = JSON.parse(text);
+      } catch (e) {
+        console.error("API trả về không phải JSON:", text);
+        throw new Error("Dữ liệu không hợp lệ");
+      }
       if (result.result === "success") {
         setSttData({
           stt: result.stt,
@@ -665,31 +719,50 @@ const TulanSmartApp = () => {
   // Màn hình kết quả đặt lịch
   if (sttData) {
     return (
-      <Page className="page-bg">
+      <Page
+        className="page-bg"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100vh",
+          overflow: "hidden",
+          transition: "all 0.25s ease",
+          transform: pageAnim === "enter" ? "translateX(0)" : `translateX(${direction * 100}%)`,
+          opacity: pageAnim === "enter" ? 1 : 0
+        }}
+      >
         <Header title="KẾT QUẢ" onBackClick={() => setSttData(null)} />
-        <Box p={4} style={{ marginTop: 20 }}>
-          <div style={{ background: 'white', borderRadius: 16, padding: 20, textAlign: 'center' }}>
-            <Text weight="bold" size="large" style={{ color: '#0068ff', marginBottom: 8 }}>PHIẾU HẸN ĐIỆN TỬ</Text>
-            <Box mt={4}>
-              <Text size="small">Số thứ tự của bạn</Text>
-              <div style={{ fontSize: 60, fontWeight: 'bold', color: '#ff4d4f', margin: '10px 0' }}>{sttData.stt}</div>
-            </Box>
-            <div style={{ textAlign: 'left', marginTop: 20 }}>
-              <p><b>Họ tên:</b> {sttData.ten}</p>
-              <p><b>Số điện thoại:</b> {sttData.sdt}</p>
-              <p><b>Căn cước công dân:</b> {sttData.cccd}</p>
-              <p><b>Ngày hẹn:</b> {sttData.ngay}</p>
-              <p><b>Giờ hẹn:</b> {sttData.gio}</p>
-              <p><b>Nội dung:</b> {sttData.noidung || "Không có"}</p>
+        <div style={{ flex: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", paddingBottom: 70 }}>
+          <Box p={4} style={{ marginTop: 20 }}>
+            <div style={{ background: 'white', borderRadius: 16, padding: 20, textAlign: 'center' }}>
+              <Text weight="bold" size="large" style={{ color: '#0068ff', marginBottom: 8 }}>PHIẾU HẸN ĐIỆN TỬ</Text>
+              <Box mt={4}>
+                <Text size="small">Số thứ tự của bạn</Text>
+                <div style={{ fontSize: 60, fontWeight: 'bold', color: '#ff4d4f', margin: '10px 0' }}>{sttData.stt}</div>
+              </Box>
+              <div style={{ textAlign: 'left', marginTop: 20 }}>
+                <p><b>Họ tên:</b> {sttData.ten}</p>
+                <p><b>Số điện thoại:</b> {sttData.sdt}</p>
+                <p><b>Căn cước công dân:</b> {sttData.cccd}</p>
+                <p><b>Ngày hẹn:</b> {sttData.ngay}</p>
+                <p><b>Giờ hẹn:</b> {sttData.gio}</p>
+                <p><b>Nội dung:</b> {sttData.noidung || "Không có"}</p>
+              </div>
+              <button onClick={handleScreenshot} style={{ width: '100%', padding: 12, background: '#28a745', color: '#fff', border: 'none', borderRadius: 25, marginTop: 20, fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}>
+                📸 HƯỚNG DẪN CHỤP ẢNH
+              </button>
+              <button onClick={() => { setSttData(null); changeView("home"); }} style={{ width: '100%', padding: 12, background: '#0068ff', color: '#fff', border: 'none', borderRadius: 25, marginTop: 12, fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}>
+                XÁC NHẬN
+              </button>
             </div>
-            <button onClick={handleScreenshot} style={{ width: '100%', padding: 12, background: '#28a745', color: '#fff', border: 'none', borderRadius: 25, marginTop: 20, fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}>
-              📸 HƯỚNG DẪN CHỤP ẢNH
-            </button>
-            <button onClick={() => { setSttData(null); setView("home"); }} style={{ width: '100%', padding: 12, background: '#0068ff', color: '#fff', border: 'none', borderRadius: 25, marginTop: 12, fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}>
-              XÁC NHẬN
-            </button>
-          </div>
-        </Box>
+          </Box>
+        </div>
+        <AppFooter
+          onHome={() => { setViewMore(false); changeView("home"); }}
+          onContact={() => api.openWebview({ url: "https://zalo.me/155482019626526050" })}
+          onHotline={() => setShowHotline(true)}
+          onManage={() => setShowManageModal(true)}
+        />
       </Page>
     );
   }
@@ -697,34 +770,53 @@ const TulanSmartApp = () => {
   // Màn hình đặt lịch
   if (view === "booking") {
     return (
-      <Page className="page-bg">
-        <Header title="Đặt lịch làm việc" onBackClick={() => setView("home")} />
-        <Box p={4}>
-          <div style={{ marginBottom: 15 }}>
-            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: 8 }}>Ngày & Giờ hẹn:</label>
-            <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ width: '100%', padding: 14, border: '1px solid #e0e0e0', borderRadius: 12, fontSize: 15 }} />
-            <input type="time" value={time} onChange={e => setTime(e.target.value)} style={{ width: '100%', padding: 14, border: '1px solid #e0e0e0', borderRadius: 12, fontSize: 15, marginTop: 10 }} />
-          </div>
-          <div style={{ marginBottom: 15 }}>
-            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: 8 }}>Họ và Tên:</label>
-            <input type="text" placeholder="Nhập tên" value={name} onChange={e => setName(e.target.value)} style={{ width: '100%', padding: 14, border: '1px solid #e0e0e0', borderRadius: 12, fontSize: 15 }} />
-          </div>
-          <div style={{ marginBottom: 15 }}>
-            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: 8 }}>Số điện thoại (10 số):</label>
-            <input type="tel" placeholder="Nhập SĐT" value={phone} onChange={e => setPhone(e.target.value)} style={{ width: '100%', padding: 14, border: '1px solid #e0e0e0', borderRadius: 12, fontSize: 15 }} />
-          </div>
-          <div style={{ marginBottom: 15 }}>
-            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: 8 }}>Căn cước công dân (12 số):</label>
-            <input type="text" placeholder="Nhập CCCD" value={cccd} onChange={e => setCccd(e.target.value)} style={{ width: '100%', padding: 14, border: '1px solid #e0e0e0', borderRadius: 12, fontSize: 15 }} />
-          </div>
-          <div style={{ marginBottom: 15 }}>
-            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: 8 }}>Nội dung:</label>
-            <textarea placeholder="Nội dung làm việc" value={note} onChange={e => setNote(e.target.value)} rows={3} style={{ width: '100%', padding: 14, border: '1px solid #e0e0e0', borderRadius: 12, fontSize: 15, fontFamily: 'inherit' }} />
-          </div>
-          <button onClick={handleSend} style={{ width: '100%', padding: '15px', background: '#0068ff', color: '#fff', border: 'none', borderRadius: '25px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}>
-            NHẬN SỐ THỨ TỰ
-          </button>
-        </Box>
+      <Page
+        className="page-bg"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100vh",
+          overflow: "hidden",
+          transition: "all 0.25s ease",
+          transform: pageAnim === "enter" ? "translateX(0)" : `translateX(${direction * 100}%)`,
+          opacity: pageAnim === "enter" ? 1 : 0
+        }}
+      >
+        <Header title="Đặt lịch làm việc" onBackClick={() => changeView("home")} />
+        <div style={{ flex: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", paddingBottom: 70 }}>
+          <Box p={4}>
+            <div style={{ marginBottom: 15 }}>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: 8 }}>Ngày & Giờ hẹn:</label>
+              <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ width: '100%', padding: 14, border: '1px solid #e0e0e0', borderRadius: 12, fontSize: 15 }} />
+              <input type="time" value={time} onChange={e => setTime(e.target.value)} style={{ width: '100%', padding: 14, border: '1px solid #e0e0e0', borderRadius: 12, fontSize: 15, marginTop: 10 }} />
+            </div>
+            <div style={{ marginBottom: 15 }}>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: 8 }}>Họ và Tên:</label>
+              <input type="text" placeholder="Nhập tên" value={name} onChange={e => setName(e.target.value)} style={{ width: '100%', padding: 14, border: '1px solid #e0e0e0', borderRadius: 12, fontSize: 15 }} />
+            </div>
+            <div style={{ marginBottom: 15 }}>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: 8 }}>Số điện thoại (10 số):</label>
+              <input type="tel" placeholder="Nhập SĐT" value={phone} onChange={e => setPhone(e.target.value)} style={{ width: '100%', padding: 14, border: '1px solid #e0e0e0', borderRadius: 12, fontSize: 15 }} />
+            </div>
+            <div style={{ marginBottom: 15 }}>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: 8 }}>Căn cước công dân (12 số):</label>
+              <input type="text" placeholder="Nhập CCCD" value={cccd} onChange={e => setCccd(e.target.value)} style={{ width: '100%', padding: 14, border: '1px solid #e0e0e0', borderRadius: 12, fontSize: 15 }} />
+            </div>
+            <div style={{ marginBottom: 15 }}>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: 8 }}>Nội dung:</label>
+              <textarea placeholder="Nội dung làm việc" value={note} onChange={e => setNote(e.target.value)} rows={3} style={{ width: '100%', padding: 14, border: '1px solid #e0e0e0', borderRadius: 12, fontSize: 15, fontFamily: 'inherit' }} />
+            </div>
+            <button onClick={handleSend} style={{ width: '100%', padding: '15px', background: '#0068ff', color: '#fff', border: 'none', borderRadius: '25px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}>
+              NHẬN SỐ THỨ TỰ
+            </button>
+          </Box>
+        </div>
+        <AppFooter
+          onHome={() => { setViewMore(false); changeView("home"); }}
+          onContact={() => api.openWebview({ url: "https://zalo.me/155482019626526050" })}
+          onHotline={() => setShowHotline(true)}
+          onManage={() => setShowManageModal(true)}
+        />
       </Page>
     );
   }
@@ -732,53 +824,178 @@ const TulanSmartApp = () => {
   // Màn hình hotline
   if (showHotline) {
     return (
-      <Page className="page-bg">
+      <Page
+        className="page-bg"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100vh",
+          overflow: "hidden",
+          transition: "all 0.25s ease",
+          transform: pageAnim === "enter" ? "translateX(0)" : `translateX(${direction * 100}%)`,
+          opacity: pageAnim === "enter" ? 1 : 0
+        }}
+      >
         <Header title="ĐƯỜNG DÂY NÓNG" onBackClick={() => setShowHotline(false)} />
-        <Box p={4} style={{ marginTop: 8 }}>
-          <div style={{ background: 'white', borderRadius: 16, padding: 20 }}>
-            <Text weight="bold" size="large" style={{ color: '#0068ff', marginBottom: 16 }}>UBND PHƯỜNG TỰ LẠN</Text>
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-                <span>Chủ tịch UBND phường:</span>
-                <span style={{ color: '#0068ff', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => makePhoneCall('0372433486')}>📞 0372433486</span>
+        <div style={{ flex: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", paddingBottom: 70 }}>
+          <Box p={4} style={{ marginTop: 8 }}>
+            <div style={{ background: 'white', borderRadius: 16, padding: 20 }}>
+              <Text weight="bold" size="large" style={{ color: '#0068ff', marginBottom: 16 }}>UBND PHƯỜNG TỰ LẠN</Text>
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <span>Chủ tịch UBND phường:</span>
+                  <span style={{ color: '#0068ff', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => makePhoneCall('0372433486')}>📞 0372433486</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <span>Phó Chủ tịch Thường trực:</span>
+                  <span style={{ color: '#0068ff', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => makePhoneCall('0976103880')}>📞 0976103880</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <span>Phó Chủ tịch UBND:</span>
+                  <span style={{ color: '#0068ff', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => makePhoneCall('0982384045')}>📞 0982384045</span>
+                </div>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-                <span>Phó Chủ tịch Thường trực:</span>
-                <span style={{ color: '#0068ff', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => makePhoneCall('0976103880')}>📞 0976103880</span>
+              <Text weight="bold" size="large" style={{ color: '#0068ff', marginBottom: 16, marginTop: 16 }}>ĐƯỜNG DÂY NÓNG TIẾP NHẬN PHẢN ÁNH, GÓP Ý TTHC</Text>
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <span>Giám đốc TTPVHCC:</span>
+                  <span style={{ color: '#0068ff', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => makePhoneCall('0977010881')}>📞 0977010881</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <span>Phó Giám đốc TTPVHCC:</span>
+                  <span style={{ color: '#0068ff', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => makePhoneCall('0914486324')}>📞 0914486324</span>
+                </div>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-                <span>Phó Chủ tịch UBND:</span>
-                <span style={{ color: '#0068ff', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => makePhoneCall('0982384045')}>📞 0982384045</span>
+              <Text weight="bold" size="large" style={{ color: '#dc3545', marginBottom: 16, marginTop: 16 }}>KHẨN CẤP</Text>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Bảo vệ trẻ em:</span><span style={{ color: '#dc3545', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => makePhoneCall('111')}>📞 111</span></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Công an:</span><span style={{ color: '#dc3545', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => makePhoneCall('113')}>📞 113</span></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Cứu hỏa:</span><span style={{ color: '#dc3545', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => makePhoneCall('114')}>📞 114</span></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Cấp cứu y tế:</span><span style={{ color: '#dc3545', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => makePhoneCall('115')}>📞 115</span></div>
               </div>
             </div>
-            <Text weight="bold" size="large" style={{ color: '#0068ff', marginBottom: 16, marginTop: 16 }}>ĐƯỜNG DÂY NÓNG TIẾP NHẬN PHẢN ÁNH, GÓP Ý TTHC</Text>
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-                <span>Giám đốc TTPVHCC:</span>
-                <span style={{ color: '#0068ff', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => makePhoneCall('0977010881')}>📞 0977010881</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-                <span>Phó Giám đốc TTPVHCC:</span>
-                <span style={{ color: '#0068ff', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => makePhoneCall('0914486324')}>📞 0914486324</span>
-              </div>
+          </Box>
+        </div>
+        <AppFooter
+          onHome={() => { setViewMore(false); changeView("home"); }}
+          onContact={() => api.openWebview({ url: "https://zalo.me/155482019626526050" })}
+          onHotline={() => setShowHotline(true)}
+          onManage={() => setShowManageModal(true)}
+        />
+      </Page>
+    );
+  }
+
+  // ==================== TRANG XEM THÊM ====================
+  if (viewMore) {
+    return (
+      <Page
+        className="page-bg"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100vh",
+          overflow: "hidden",
+          transition: "all 0.25s ease",
+          transform: pageAnim === "enter" ? "translateX(0)" : `translateX(${direction * 100}%)`,
+          opacity: pageAnim === "enter" ? 1 : 0
+        }}
+      >
+        <Header title="Tất cả chức năng" onBackClick={() => setViewMore(false)} />
+        <div style={{ flex: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", paddingBottom: 70 }}>
+          <Box mt={4} px={4}>
+            <div style={{
+              background: "#fff",
+              borderRadius: 20,
+              padding: "16px 12px",
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 18
+            }}>
+              {moreItems.map((item) => {
+                const originalIndex = allItems.findIndex(orig => orig.id === item.id);
+                const colorIdx = originalIndex !== -1 ? originalIndex : 0;
+
+                return (
+                  <div
+                    key={item.id}
+                    onClick={item.action}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      transition: "all 0.2s"
+                    }}
+                    onTouchStart={(e) => {
+                      e.currentTarget.style.transform = "scale(0.92)";
+                      e.currentTarget.style.opacity = "0.7";
+                    }}
+                    onTouchEnd={(e) => {
+                      e.currentTarget.style.transform = "scale(1)";
+                      e.currentTarget.style.opacity = "1";
+                    }}
+                  >
+                    <div style={{
+                      width: 64,
+                      height: 64,
+                      borderRadius: 18,
+                      background: iconColors[colorIdx % iconColors.length],
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginBottom: 8
+                    }}>
+                      {item.isEmoji ? (
+                        <span style={{ fontSize: 36 }}>{item.icon}</span>
+                      ) : (
+                        <img
+                          src={item.icon}
+                          alt={item.title}
+                          style={{ width: 45, height: 45 }}
+                          onError={(e) => { e.currentTarget.style.display = "none"; }}
+                        />
+                      )}
+                    </div>
+
+                    <div style={{
+                      textAlign: "center",
+                      fontWeight: 600,
+                      fontSize: 12
+                    }}>
+                      {item.title}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-            <Text weight="bold" size="large" style={{ color: '#dc3545', marginBottom: 16, marginTop: 16 }}>KHẨN CẤP</Text>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Bảo vệ trẻ em:</span><span style={{ color: '#dc3545', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => makePhoneCall('111')}>📞 111</span></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Công an:</span><span style={{ color: '#dc3545', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => makePhoneCall('113')}>📞 113</span></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Cứu hỏa:</span><span style={{ color: '#dc3545', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => makePhoneCall('114')}>📞 114</span></div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Cấp cứu y tế:</span><span style={{ color: '#dc3545', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => makePhoneCall('115')}>📞 115</span></div>
-            </div>
-          </div>
-        </Box>
+          </Box>
+        </div>
+        <AppFooter
+          onHome={() => { setViewMore(false); changeView("home"); }}
+          onContact={() => api.openWebview({ url: "https://zalo.me/155482019626526050" })}
+          onHotline={() => setShowHotline(true)}
+          onManage={() => setShowManageModal(true)}
+        />
       </Page>
     );
   }
 
   // Trang chủ
   return (
-    <Page className="page-bg" style={{ paddingBottom: '70px' }}>
-      <Header title="Tự Lạn SmartApp" onBackClick={() => {}} />
+    <Page
+      className="page-bg"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100vh",
+        overflow: "hidden",
+        transition: "all 0.25s ease",
+        transform: pageAnim === "enter" ? "translateX(0)" : `translateX(${direction * 100}%)`,
+        opacity: pageAnim === "enter" ? 1 : 0
+      }}
+    >
       <ThuTucModal
         show={showThuTucModal}
         onClose={() => {
@@ -800,7 +1017,7 @@ const TulanSmartApp = () => {
         item={selectedThuTuc}
       />
 
-      <div style={{ flex: 1 }}>
+      <div style={{ flex: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", paddingBottom: 70 }}>
         {loadingNews ? (
           <div style={{ padding: 20, textAlign: 'center' }}>Đang tải tin tức...</div>
         ) : newsList.length > 0 && (
@@ -832,12 +1049,22 @@ const TulanSmartApp = () => {
         {/* 2 ô lớn phía trên */}
         <Box mt={4} px={4}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div style={{ background: '#fff', borderRadius: 16, padding: 12, textAlign: 'center', cursor: 'pointer', border: '1px solid #e6f0ff', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', transition: 'all 0.2s' }} onTouchStart={(e) => { e.currentTarget.style.transform = 'scale(0.95)'; e.currentTarget.style.background = '#f5faff'; }} onTouchEnd={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.background = '#fff'; }} onClick={() => api.openWebview({ url: "https://tu-lan-dvc-ai-v3.vercel.app/" })}>
-              <img src="images/icon_chatbot.png" style={{ width: 60, height: 60 }} />
+            <div 
+              style={{ background: '#fff', borderRadius: 16, padding: 12, textAlign: 'center', cursor: 'pointer', border: '1px solid #e6f0ff', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', transition: 'all 0.2s' }} 
+              onTouchStart={(e) => { e.currentTarget.style.transform = 'scale(0.95)'; e.currentTarget.style.background = '#f5faff'; }} 
+              onTouchEnd={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.background = '#fff'; }} 
+              onClick={() => api.openWebview({ url: "https://tu-lan-dvc-ai-v3.vercel.app/" })}
+            >
+              <img src="images/icon_chatbot.png" style={{ width: 60, height: 60 }} alt="Chatbot AI" />
               <Text weight="bold" size="medium" style={{ color: '#0068ff' }}>Chatbot AI</Text>
             </div>
-            <div style={{ background: '#fff', borderRadius: 16, padding: 12, textAlign: 'center', cursor: 'pointer', border: '1px solid #e6f0ff', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', transition: 'all 0.2s' }} onTouchStart={(e) => { e.currentTarget.style.transform = 'scale(0.95)'; e.currentTarget.style.background = '#f5faff'; }} onTouchEnd={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.background = '#fff'; }} onClick={async () => { await fetchThuTuc(); setShowThuTucModal(true); }}>
-              <img src="images/icon_thutuc.png" style={{ width: 60, height: 60 }} />
+            <div 
+              style={{ background: '#fff', borderRadius: 16, padding: 12, textAlign: 'center', cursor: 'pointer', border: '1px solid #e6f0ff', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', transition: 'all 0.2s' }} 
+              onTouchStart={(e) => { e.currentTarget.style.transform = 'scale(0.95)'; e.currentTarget.style.background = '#f5faff'; }} 
+              onTouchEnd={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.background = '#fff'; }} 
+              onClick={async () => { await fetchThuTuc(); setShowThuTucModal(true); }}
+            >
+              <img src="images/icon_thutuc.png" style={{ width: 60, height: 60 }} alt="Thủ tục hành chính" />
               <div style={{ fontWeight: 'bold', fontSize: 14, color: '#0068ff', marginTop: 4 }}>
                 Thủ tục hành chính<br/>thiết yếu
               </div>
@@ -845,20 +1072,36 @@ const TulanSmartApp = () => {
           </div>
         </Box>
 
-        {/* Grid các chức năng (visibleItems) */}
+        {/* Grid các chức năng (homeItems) */}
         <Box mt={6} px={4}>
           <div style={{ background: "#fff", borderRadius: 20, padding: "16px 12px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 18, maxHeight: "55vh", overflowY: "auto", WebkitOverflowScrolling: "touch" }}>
-            {visibleItems.map((item) => {
-              // Tìm index gốc để giữ màu sắc ổn định
+            {homeItems.map((item) => {
               const originalIndex = allItems.findIndex(orig => orig.id === item.id);
               const colorIdx = originalIndex !== -1 ? originalIndex : 0;
               return (
-                <div key={item.id} onClick={item.action} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "all 0.2s" }} onTouchStart={(e) => (e.currentTarget.style.transform = "scale(0.92)")} onTouchEnd={(e) => (e.currentTarget.style.transform = "scale(1)")}>
+                <div 
+                  key={item.id} 
+                  onClick={item.action} 
+                  style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "all 0.2s" }} 
+                  onTouchStart={(e) => {
+                    e.currentTarget.style.transform = "scale(0.92)";
+                    e.currentTarget.style.opacity = "0.7";
+                  }} 
+                  onTouchEnd={(e) => {
+                    e.currentTarget.style.transform = "scale(1)";
+                    e.currentTarget.style.opacity = "1";
+                  }}
+                >
                   <div style={{ width: 64, height: 64, borderRadius: 18, background: iconColors[colorIdx % iconColors.length], display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8, boxShadow: "0 4px 8px rgba(0,0,0,0.1)" }}>
                     {item.isEmoji ? (
                       <span style={{ fontSize: 36 }}>{item.icon}</span>
                     ) : (
-                      <img src={item.icon} alt={item.title} style={{ width: 45, height: 45 }} />
+                      <img
+                        src={item.icon}
+                        alt={item.title}
+                        style={{ width: 45, height: 45 }}
+                        onError={(e) => { e.currentTarget.style.display = "none"; }}
+                      />
                     )}
                   </div>
                   <div style={{ textAlign: "center", fontWeight: 600, fontSize: 12, color: "#1a1a1a", lineHeight: 1.3, maxWidth: "100%", wordBreak: "break-word", whiteSpace: "normal" }}>
@@ -867,50 +1110,92 @@ const TulanSmartApp = () => {
                 </div>
               );
             })}
+            {/* 🔥 XEM THÊM chuyên nghiệp */}
+            <div
+              onClick={() => setViewMore(true)}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                transition: "all 0.25s"
+              }}
+              onTouchStart={(e) => {
+                e.currentTarget.style.transform = "scale(0.9)";
+              }}
+              onTouchEnd={(e) => {
+                e.currentTarget.style.transform = "scale(1)";
+              }}
+            >
+              <div
+                style={{
+                  width: 64,
+                  height: 64,
+                  borderRadius: 20,
+                  background: "linear-gradient(135deg, #0068ff, #00c6ff)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: 8,
+                  boxShadow: "0 6px 16px rgba(0,104,255,0.3)",
+                  position: "relative"
+                }}
+              >
+                <div
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: "50%",
+                    background: "rgba(255,255,255,0.2)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 20,
+                      color: "#fff",
+                      transform: "translateX(2px)"
+                    }}
+                  >
+                    ➜
+                  </span>
+                </div>
+              </div>
+              <div
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: "#0068ff"
+                }}
+              >
+                Xem thêm
+              </div>
+            </div>
           </div>
         </Box>
 
         {/* NGHỊ QUYẾT */}
         <NghiQuyetSection />
-
-        <div style={{ height: 70 }} />
       </div>
 
-      {/* Footer cố định */}
-      <div style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        background: '#fff',
-        borderTop: '1px solid #ddd',
-        padding: '8px 16px',
-        zIndex: 1000
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
-          <div style={{ cursor: 'pointer', textAlign: 'center' }} onClick={() => { setView("home"); window.scrollTo(0, 0); }}>
-            <Text size="small" style={{ color: view === 'home' ? '#0068ff' : '#666', fontWeight: view === 'home' ? 'bold' : 'normal' }}>🏠 Trang chủ</Text>
-          </div>
-          <div style={{ cursor: 'pointer', textAlign: 'center' }} onClick={() => api.openWebview({ url: "https://zalo.me/155482019626526050" })}>
-            <Text size="small" style={{ color: '#666' }}>💬 Liên hệ</Text>
-          </div>
-          <div style={{ cursor: 'pointer', textAlign: 'center' }} onClick={() => setShowHotline(true)}>
-            <Text size="small" style={{ color: '#666' }}>📞 Đường dây nóng</Text>
-          </div>
-          <div style={{ cursor: 'pointer', textAlign: 'center' }} onClick={() => setShowManageModal(true)}>
-            <Text size="small" style={{ color: '#666' }}>⚙️ Q.lý</Text>
-          </div>
-        </div>
-      </div>
+      <AppFooter
+        onHome={() => { setViewMore(false); changeView("home"); }}
+        onContact={() => api.openWebview({ url: "https://zalo.me/155482019626526050" })}
+        onHotline={() => setShowHotline(true)}
+        onManage={() => setShowManageModal(true)}
+        isHomeActive={view === 'home' && !viewMore}
+      />
 
-      {/* 🔥 Modal quản lý VIP (drag & drop + switch + khôi phục) - ĐÃ FIX LỖI INDEX */}
+      {/* 🔥 Modal quản lý VIP */}
       <Modal visible={showManageModal} onClose={() => setShowManageModal(false)}>
         <div style={{ padding: 20 }}>
           <Text size="large" weight="bold">⚙️ Quản lý chức năng</Text>
 
           <div style={{ marginTop: 16, maxHeight: 400, overflowY: "auto" }}>
             {(() => {
-              // 🔥 QUAN TRỌNG: tạo mảng đã sort để dùng cho cả render và drag/drop
               const sortedMenu = [...menuConfig].sort((a, b) => a.order - b.order);
               return sortedMenu.map((item, index) => (
                 <div
@@ -921,15 +1206,11 @@ const TulanSmartApp = () => {
                   }}
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={(e) => {
-                    const dragIndex = parseInt(e.dataTransfer.getData("dragIndex"));
-                    
-                    // Lấy lại mảng đã sort hiện tại (dựa trên menuConfig gốc)
+                    const dragIndex = parseInt(e.dataTransfer.getData("dragIndex") || "0");
                     const sorted = [...menuConfig].sort((a, b) => a.order - b.order);
                     const draggedItem = sorted[dragIndex];
                     sorted.splice(dragIndex, 1);
                     sorted.splice(index, 0, draggedItem);
-                    
-                    // Cập nhật lại order
                     const updated = sorted.map((it, idx) => ({
                       ...it,
                       order: idx
@@ -944,7 +1225,6 @@ const TulanSmartApp = () => {
                     borderBottom: "1px solid #eee"
                   }}
                 >
-                  {/* LEFT */}
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <div style={{
                       width: 36,
@@ -958,13 +1238,12 @@ const TulanSmartApp = () => {
                       {item.isEmoji ? (
                         <span>{item.icon}</span>
                       ) : item.icon ? (
-                        <img src={item.icon} style={{ width: 24, height: 24 }} alt={item.title} />
+                        <img src={item.icon} alt={item.title} style={{ width: 24, height: 24 }} />
                       ) : null}
                     </div>
                     <Text>{item.title}</Text>
                   </div>
 
-                  {/* SWITCH */}
                   <div
                     onClick={() => {
                       setMenuConfig(prev =>
@@ -1001,7 +1280,6 @@ const TulanSmartApp = () => {
             })()}
           </div>
 
-          {/* ACTION BUTTONS */}
           <Button
             fullWidth
             style={{ marginTop: 12 }}
