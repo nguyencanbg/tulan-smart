@@ -86,19 +86,25 @@ const ThuTucDetailModal = ({ show, onClose, item }) => {
         {item.mauDon && (
           <Box mt={2}>
             <Text weight="medium">📎 Mẫu tờ khai:</Text>
-            <Text size="small" style={{ color: '#0068ff', cursor: 'pointer' }} onClick={() => window.open(item.mauDon, '_blank')}>Tải về</Text>
+            <Text size="small" style={{ color: '#0068ff', cursor: 'pointer' }} onClick={() => {
+              window.open(item.mauDon, '_blank');
+            }}>Tải về</Text>
           </Box>
         )}
         {item.linkOnline && (
           <Box mt={2}>
             <Text weight="medium">🌐 Nộp trực tuyến:</Text>
-            <Text size="small" style={{ color: '#0068ff', cursor: 'pointer' }} onClick={() => api.openWebview({ url: item.linkOnline })}>Tại đây</Text>
+            <Text size="small" style={{ color: '#0068ff', cursor: 'pointer' }} onClick={() => {
+              api.openWebview({ url: item.linkOnline });
+            }}>Tại đây</Text>
           </Box>
         )}
         {item.linkHuongDan && (
           <Box mt={2}>
             <Text weight="medium">📘 Hướng dẫn chi tiết:</Text>
-            <Text size="small" style={{ color: '#0068ff', cursor: 'pointer' }} onClick={() => api.openWebview({ url: item.linkHuongDan })}>Xem hướng dẫn</Text>
+            <Text size="small" style={{ color: '#0068ff', cursor: 'pointer' }} onClick={() => {
+              api.openWebview({ url: item.linkHuongDan });
+            }}>Xem hướng dẫn</Text>
           </Box>
         )}
         <Box mt={4}>
@@ -150,6 +156,10 @@ const NghiQuyetSection = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!navigator.onLine) {
+        api.showToast({ message: "Không có kết nối internet" });
+        return;
+      }
       setLoading(true);
       try {
         const sheetParam = activeTab === "danguy" ? "Dang%20uy" : "HDND";
@@ -298,18 +308,13 @@ const NghiQuyetSection = () => {
   );
 };
 
-// ==================== COMPONENT FOOTER ====================
+// ==================== COMPONENT FOOTER (KHÔNG FIXED) ====================
 const AppFooter = ({ onHome, onContact, onHotline, onManage, isHomeActive = false }) => {
   return (
     <div style={{
-      position: 'fixed',
-      bottom: 0,
-      left: 0,
-      right: 0,
       height: 60,
       background: '#fff',
       borderTop: '1px solid #ddd',
-      zIndex: 1000,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-around',
@@ -333,16 +338,14 @@ const AppFooter = ({ onHome, onContact, onHotline, onManage, isHomeActive = fals
 
 // ==================== COMPONENT CHÍNH ====================
 const TulanSmartApp = () => {
-  const [view, setView] = useState("home");
-  const [viewMore, setViewMore] = useState(false);
-  const [pageAnim, setPageAnim] = useState("enter");
-  const [direction, setDirection] = useState(1);
+  // 🔥 STATE DUY NHẤT ĐIỀU KHIỂN MÀN HÌNH
+  const [screen, setScreen] = useState("home");
 
+  // Các state khác
   const [slide, setSlide] = useState(0);
   const [sttData, setSttData] = useState(null);
   const [newsList, setNewsList] = useState([]);
   const [loadingNews, setLoadingNews] = useState(true);
-  const [showHotline, setShowHotline] = useState(false);
   const [showThuTucModal, setShowThuTucModal] = useState(false);
   const [thuTucList, setThuTucList] = useState([]);
   const [loadingThuTuc, setLoadingThuTuc] = useState(false);
@@ -350,12 +353,16 @@ const TulanSmartApp = () => {
   const [selectedThuTuc, setSelectedThuTuc] = useState(null);
   const [showThuTucDetail, setShowThuTucDetail] = useState(false);
 
-  // 🔥 State mới cho menu VIP
+  // State cho menu VIP
   const [menuConfig, setMenuConfig] = useState([]);
   const [showManageModal, setShowManageModal] = useState(false);
 
-  // 🔹 Bước 1: Khai báo state userId
+  // State userId
   const [userId, setUserId] = useState("");
+
+  // SWIPE VIP cho menu
+  const touchStartXMenu = useRef(0);
+  const touchEndXMenu = useRef(0);
 
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
@@ -372,11 +379,11 @@ const TulanSmartApp = () => {
   const CSV_URL_NEWS = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCaJI86xdJAZ2qEaKCPjtXSF5kelYEwFSlAiH0SPiymLL1vJ3Dm-7QejC56AB8jwfwty_xeR8o13cc/pub?output=csv";
   const CSV_URL_THUTUC = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRMS5dRHxCGI8oW5gBeIZfVqu5gkcXhs6t4KLx2h8J-UYIq7-kZrwbMcRN2-XaM4ny2dD8t_BKYppzm/pub?output=csv";
 
-  // Danh sách item đầy đủ (13 item)
+  // Danh sách item đầy đủ (14 item - thêm Giới thiệu)
   const allItems = [
-    { id: "datlich", title: "Đặt lịch", icon: "images/icon_datlich.png", isEmoji: false, action: () => changeView("booking") },
+    { id: "datlich", title: "Đặt lịch làm việc", icon: "images/icon_datlich.png", isEmoji: false, action: () => setScreen("booking") },
     { id: "maudon", title: "Mẫu đơn, Tờ khai", icon: "images/icon_mauDon.png", isEmoji: false, action: () => api.openWebview({ url: "https://script.google.com/macros/s/AKfycbwQW46V9GOs2VyAqpEo5NZ7RlM_VYgIGM3UmPgf5OMWk6HqQsXswTzQ_mN7sEk5PCd6Sg/exec" }) },
-    { id: "dvc", title: "Nộp hồ sơ trực tuyến", icon: "images/icon_dvc.png", isEmoji: false, action: () => api.openWebview({ url: "https://dichvucong.gov.vn" }) },
+    { id: "dvc", title: <>Nộp hồ sơ<br />trực tuyến</>, icon: "images/icon_dvc.png", isEmoji: false, action: () => api.openWebview({ url: "https://dichvucong.gov.vn" }) },
     { id: "quyhoach", title: "Quy hoạch", icon: "images/icon_quyhoach.png", isEmoji: false, action: () => api.openWebview({ url: "https://tulan.bacninh.gov.vn/thong-tin-quy-hoach" }) },
     { id: "duan", title: "Dự án", icon: "images/icon_duan.png", isEmoji: false, action: () => api.openWebview({ url: "https://tulan.bacninh.gov.vn/thong-tin-du-an-dau-tu" }) },
     { id: "dauthau", title: "Đấu thầu", icon: "images/icon_dauthau.png", isEmoji: false, action: () => api.openWebview({ url: "https://tulan.bacninh.gov.vn/dau-thau-mua-sam-cong" }) },
@@ -386,7 +393,8 @@ const TulanSmartApp = () => {
     { id: "facebook", title: "Fanpage Phường", icon: "images/icon_facebook.png", isEmoji: false, action: () => api.openWebview({ url: "https://www.facebook.com/share/1GMsKggb4X/" }) },
     { id: "youtube", title: "YouTube Phường", icon: "images/icon_youtube.png", isEmoji: false, action: () => api.openWebview({ url: "https://www.youtube.com/channel/UCnrAYbgUzqGlEkIr24PyeUw" }) },
     { id: "lichcongtac", title: "Lịch công tác", icon: "images/icon_lichcongtac.png", isEmoji: false, action: () => api.openWebview({ url: "https://tulan.bacninh.gov.vn/lich-lam-viec" }) },
-    { id: "khaosat", title: "Khảo sát", icon: "images/icon_khaosat.png", isEmoji: false, action: () => api.openWebview({ url: "https://khao-sat-frontend.vercel.app/nguyen-van-luan.html" }) }
+    { id: "khaosat", title: "Khảo sát", icon: "images/icon_khaosat.png", isEmoji: false, action: () => api.openWebview({ url: "https://khao-sat-frontend.vercel.app/" }) },
+    { id: "gioithieu", title: "Giới thiệu", icon: "images/icon_gioithieu.png", isEmoji: false, action: () => api.openWebview({ url: "https://tulan.bacninh.gov.vn/gioi-thieu-chung" }) }
   ];
 
   // 🔥 Mảng màu gradient cho icon
@@ -408,16 +416,19 @@ const TulanSmartApp = () => {
     "linear-gradient(135deg, #C0E0C0, #D4EAD4)"
   ];
 
-  // 🔥 HÀM CHUYỂN TRANG MƯỢT
-  const changeView = (nextView) => {
+  // 🔥 HÀM CHUYỂN TRANG MƯỢT (có animation)
+  const changeScreen = (nextScreen) => {
     setPageAnim("exit");
     setTimeout(() => {
-      setDirection(nextView === "home" ? -1 : 1);
-      setView(nextView);
+      setScreen(nextScreen);
       setPageAnim("enter");
       window.scrollTo(0, 0);
     }, 250);
   };
+
+  // Animation state (giữ nguyên để có hiệu ứng nếu cần, nhưng không bắt buộc)
+  const [pageAnim, setPageAnim] = useState("enter");
+  const [direction, setDirection] = useState(1);
 
   // 🔥 Khởi tạo menuConfig
   const initMenu = () => {
@@ -475,8 +486,38 @@ const TulanSmartApp = () => {
     .filter(item => item.visible)
     .sort((a, b) => a.order - b.order);
 
-  const homeItems = visibleItems.slice(0, 8);
-  const moreItems = visibleItems;
+  // 🔥 PHÂN TRANG MENU CHUẨN ZALO
+  const ITEMS_PER_PAGE = 6;
+  const pages = [];
+  for (let i = 0; i < visibleItems.length; i += ITEMS_PER_PAGE) {
+    pages.push(visibleItems.slice(i, i + ITEMS_PER_PAGE));
+  }
+  const [menuPage, setMenuPage] = useState(0);
+
+  // Handler swipe cho menu
+  const handleMenuTouchStart = (e) => {
+    touchStartXMenu.current = e.touches[0].clientX;
+  };
+
+  const handleMenuTouchMove = (e) => {
+    touchEndXMenu.current = e.touches[0].clientX;
+  };
+
+  const handleMenuTouchEnd = () => {
+    const deltaX = touchEndXMenu.current - touchStartXMenu.current;
+    const minSwipe = 50;
+
+    if (Math.abs(deltaX) > minSwipe) {
+      if (deltaX < 0 && menuPage < pages.length - 1) {
+        setMenuPage(prev => prev + 1);
+      } else if (deltaX > 0 && menuPage > 0) {
+        setMenuPage(prev => prev - 1);
+      }
+    }
+
+    touchStartXMenu.current = 0;
+    touchEndXMenu.current = 0;
+  };
 
   const parseCSV = (csvText) => {
     const rows = [];
@@ -511,6 +552,11 @@ const TulanSmartApp = () => {
 
   useEffect(() => {
     const fetchNews = async () => {
+      if (!navigator.onLine) {
+        api.showToast({ message: "Không có kết nối internet" });
+        setLoadingNews(false);
+        return;
+      }
       try {
         const res = await fetch(CSV_URL_NEWS);
         const csvText = await res.text();
@@ -549,6 +595,10 @@ const TulanSmartApp = () => {
 
   const fetchThuTuc = async () => {
     if (thuTucList.length > 0) return;
+    if (!navigator.onLine) {
+      api.showToast({ message: "Không có kết nối internet" });
+      return;
+    }
     setLoadingThuTuc(true);
     try {
       const res = await fetch(CSV_URL_THUTUC);
@@ -625,7 +675,7 @@ const TulanSmartApp = () => {
   };
 
   useEffect(() => {
-    if (view !== "home") {
+    if (screen !== "home") {
       stopAutoSlide();
       return;
     }
@@ -633,7 +683,7 @@ const TulanSmartApp = () => {
       startAutoSlide();
     }
     return () => stopAutoSlide();
-  }, [view, newsList]);
+  }, [screen, newsList]);
 
   useEffect(() => {
     if (newsList.length > 0 && slide >= newsList.length) {
@@ -657,12 +707,16 @@ const TulanSmartApp = () => {
       api.showToast({ type: "error", message: "Căn cước công dân phải đúng 12 chữ số!" });
       return;
     }
+    if (!navigator.onLine) {
+      api.showToast({ message: "Không có kết nối internet" });
+      return;
+    }
 
     api.showToast({ message: "Đang gửi yêu cầu..." });
     try {
       const res = await fetch(SCRIPT_URL, {
         method: "POST",
-        body: JSON.stringify({ ten: name, sdt: phone, cccd, noidung: note, gio: time, ngay: date }),
+        body: JSON.stringify({ ten: name, sdt: phone, cccd, noidung: note, gio: time, ngay: date, userId }),
       });
       const text = await res.text();
       let result;
@@ -682,6 +736,7 @@ const TulanSmartApp = () => {
           gio: time,
           noidung: note,
         });
+        setScreen("result");
       } else {
         throw new Error(result.message);
       }
@@ -697,6 +752,7 @@ const TulanSmartApp = () => {
         gio: time,
         noidung: note,
       });
+      setScreen("result");
     }
   };
 
@@ -716,74 +772,52 @@ const TulanSmartApp = () => {
     }
   };
 
-  // Màn hình kết quả đặt lịch
-  if (sttData) {
+  // ==================== MÀN HÌNH KẾT QUẢ ====================
+  if (screen === "result") {
     return (
-      <Page
-        className="page-bg"
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          height: "100vh",
-          overflow: "hidden",
-          transition: "all 0.25s ease",
-          transform: pageAnim === "enter" ? "translateX(0)" : `translateX(${direction * 100}%)`,
-          opacity: pageAnim === "enter" ? 1 : 0
-        }}
-      >
-        <Header title="KẾT QUẢ" onBackClick={() => setSttData(null)} />
-        <div style={{ flex: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", paddingBottom: 70 }}>
+      <Page style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
+        <Header title="KẾT QUẢ" onBackClick={() => setScreen("home")} />
+        <div style={{ flex: 1, overflowY: "auto" }}>
           <Box p={4} style={{ marginTop: 20 }}>
             <div style={{ background: 'white', borderRadius: 16, padding: 20, textAlign: 'center' }}>
               <Text weight="bold" size="large" style={{ color: '#0068ff', marginBottom: 8 }}>PHIẾU HẸN ĐIỆN TỬ</Text>
               <Box mt={4}>
                 <Text size="small">Số thứ tự của bạn</Text>
-                <div style={{ fontSize: 60, fontWeight: 'bold', color: '#ff4d4f', margin: '10px 0' }}>{sttData.stt}</div>
+                <div style={{ fontSize: 60, fontWeight: 'bold', color: '#ff4d4f', margin: '10px 0' }}>{sttData?.stt}</div>
               </Box>
               <div style={{ textAlign: 'left', marginTop: 20 }}>
-                <p><b>Họ tên:</b> {sttData.ten}</p>
-                <p><b>Số điện thoại:</b> {sttData.sdt}</p>
-                <p><b>Căn cước công dân:</b> {sttData.cccd}</p>
-                <p><b>Ngày hẹn:</b> {sttData.ngay}</p>
-                <p><b>Giờ hẹn:</b> {sttData.gio}</p>
-                <p><b>Nội dung:</b> {sttData.noidung || "Không có"}</p>
+                <p><b>Họ tên:</b> {sttData?.ten}</p>
+                <p><b>Số điện thoại:</b> {sttData?.sdt}</p>
+                <p><b>Căn cước công dân:</b> {sttData?.cccd}</p>
+                <p><b>Ngày hẹn:</b> {sttData?.ngay}</p>
+                <p><b>Giờ hẹn:</b> {sttData?.gio}</p>
+                <p><b>Nội dung:</b> {sttData?.noidung || "Không có"}</p>
               </div>
               <button onClick={handleScreenshot} style={{ width: '100%', padding: 12, background: '#28a745', color: '#fff', border: 'none', borderRadius: 25, marginTop: 20, fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}>
                 📸 HƯỚNG DẪN CHỤP ẢNH
               </button>
-              <button onClick={() => { setSttData(null); changeView("home"); }} style={{ width: '100%', padding: 12, background: '#0068ff', color: '#fff', border: 'none', borderRadius: 25, marginTop: 12, fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}>
+              <button onClick={() => { setSttData(null); setScreen("home"); }} style={{ width: '100%', padding: 12, background: '#0068ff', color: '#fff', border: 'none', borderRadius: 25, marginTop: 12, fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}>
                 XÁC NHẬN
               </button>
             </div>
           </Box>
         </div>
         <AppFooter
-          onHome={() => { setViewMore(false); changeView("home"); }}
+          onHome={() => setScreen("home")}
           onContact={() => api.openWebview({ url: "https://zalo.me/155482019626526050" })}
-          onHotline={() => setShowHotline(true)}
+          onHotline={() => setScreen("hotline")}
           onManage={() => setShowManageModal(true)}
         />
       </Page>
     );
   }
 
-  // Màn hình đặt lịch
-  if (view === "booking") {
+  // ==================== MÀN HÌNH ĐẶT LỊCH ====================
+  if (screen === "booking") {
     return (
-      <Page
-        className="page-bg"
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          height: "100vh",
-          overflow: "hidden",
-          transition: "all 0.25s ease",
-          transform: pageAnim === "enter" ? "translateX(0)" : `translateX(${direction * 100}%)`,
-          opacity: pageAnim === "enter" ? 1 : 0
-        }}
-      >
-        <Header title="Đặt lịch làm việc" onBackClick={() => changeView("home")} />
-        <div style={{ flex: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", paddingBottom: 70 }}>
+      <Page style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
+        <Header title="Đặt lịch làm việc" onBackClick={() => setScreen("home")} />
+        <div style={{ flex: 1, overflowY: "auto" }}>
           <Box p={4}>
             <div style={{ marginBottom: 15 }}>
               <label style={{ display: 'block', fontWeight: 'bold', marginBottom: 8 }}>Ngày & Giờ hẹn:</label>
@@ -812,32 +846,21 @@ const TulanSmartApp = () => {
           </Box>
         </div>
         <AppFooter
-          onHome={() => { setViewMore(false); changeView("home"); }}
+          onHome={() => setScreen("home")}
           onContact={() => api.openWebview({ url: "https://zalo.me/155482019626526050" })}
-          onHotline={() => setShowHotline(true)}
+          onHotline={() => setScreen("hotline")}
           onManage={() => setShowManageModal(true)}
         />
       </Page>
     );
   }
 
-  // Màn hình hotline
-  if (showHotline) {
+  // ==================== MÀN HÌNH HOTLINE ====================
+  if (screen === "hotline") {
     return (
-      <Page
-        className="page-bg"
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          height: "100vh",
-          overflow: "hidden",
-          transition: "all 0.25s ease",
-          transform: pageAnim === "enter" ? "translateX(0)" : `translateX(${direction * 100}%)`,
-          opacity: pageAnim === "enter" ? 1 : 0
-        }}
-      >
-        <Header title="ĐƯỜNG DÂY NÓNG" onBackClick={() => setShowHotline(false)} />
-        <div style={{ flex: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", paddingBottom: 70 }}>
+      <Page style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
+        <Header title="ĐƯỜNG DÂY NÓNG" onBackClick={() => setScreen("home")} />
+        <div style={{ flex: 1, overflowY: "auto" }}>
           <Box p={4} style={{ marginTop: 8 }}>
             <div style={{ background: 'white', borderRadius: 16, padding: 20 }}>
               <Text weight="bold" size="large" style={{ color: '#0068ff', marginBottom: 16 }}>UBND PHƯỜNG TỰ LẠN</Text>
@@ -877,32 +900,21 @@ const TulanSmartApp = () => {
           </Box>
         </div>
         <AppFooter
-          onHome={() => { setViewMore(false); changeView("home"); }}
+          onHome={() => setScreen("home")}
           onContact={() => api.openWebview({ url: "https://zalo.me/155482019626526050" })}
-          onHotline={() => setShowHotline(true)}
+          onHotline={() => setScreen("hotline")}
           onManage={() => setShowManageModal(true)}
         />
       </Page>
     );
   }
 
-  // ==================== TRANG XEM THÊM ====================
-  if (viewMore) {
+  // ==================== MÀN HÌNH XEM THÊM ====================
+  if (screen === "viewMore") {
     return (
-      <Page
-        className="page-bg"
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          height: "100vh",
-          overflow: "hidden",
-          transition: "all 0.25s ease",
-          transform: pageAnim === "enter" ? "translateX(0)" : `translateX(${direction * 100}%)`,
-          opacity: pageAnim === "enter" ? 1 : 0
-        }}
-      >
-        <Header title="Tất cả chức năng" onBackClick={() => setViewMore(false)} />
-        <div style={{ flex: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", paddingBottom: 70 }}>
+      <Page style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
+        <Header title="Tất cả chức năng" onBackClick={() => setScreen("home")} />
+        <div style={{ flex: 1, overflowY: "auto" }}>
           <Box mt={4} px={4}>
             <div style={{
               background: "#fff",
@@ -912,21 +924,24 @@ const TulanSmartApp = () => {
               gridTemplateColumns: "repeat(3, 1fr)",
               gap: 18
             }}>
-              {moreItems.map((item) => {
+              {visibleItems.map((item) => {
                 const originalIndex = allItems.findIndex(orig => orig.id === item.id);
                 const colorIdx = originalIndex !== -1 ? originalIndex : 0;
 
                 return (
                   <div
                     key={item.id}
-                    onClick={item.action}
+                    onClick={() => {
+                      item.action();
+                    }}
                     style={{
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
-                      justifyContent: "center",
+                      justifyContent: "flex-start",
                       cursor: "pointer",
-                      transition: "all 0.2s"
+                      transition: "all 0.2s",
+                      height: 110
                     }}
                     onTouchStart={(e) => {
                       e.currentTarget.style.transform = "scale(0.92)";
@@ -959,11 +974,18 @@ const TulanSmartApp = () => {
                       )}
                     </div>
 
-                    <div style={{
-                      textAlign: "center",
-                      fontWeight: 600,
-                      fontSize: 12
-                    }}>
+                    <div
+                      style={{
+                        textAlign: "center",
+                        fontWeight: 600,
+                        fontSize: 12,
+                        lineHeight: 1.4,
+                        height: 34,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center"
+                      }}
+                    >
                       {item.title}
                     </div>
                   </div>
@@ -973,29 +995,18 @@ const TulanSmartApp = () => {
           </Box>
         </div>
         <AppFooter
-          onHome={() => { setViewMore(false); changeView("home"); }}
+          onHome={() => setScreen("home")}
           onContact={() => api.openWebview({ url: "https://zalo.me/155482019626526050" })}
-          onHotline={() => setShowHotline(true)}
+          onHotline={() => setScreen("hotline")}
           onManage={() => setShowManageModal(true)}
         />
       </Page>
     );
   }
 
-  // Trang chủ
+  // ==================== MÀN HÌNH TRANG CHỦ (HOME) ====================
   return (
-    <Page
-      className="page-bg"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100vh",
-        overflow: "hidden",
-        transition: "all 0.25s ease",
-        transform: pageAnim === "enter" ? "translateX(0)" : `translateX(${direction * 100}%)`,
-        opacity: pageAnim === "enter" ? 1 : 0
-      }}
-    >
+    <Page style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
       <ThuTucModal
         show={showThuTucModal}
         onClose={() => {
@@ -1017,9 +1028,9 @@ const TulanSmartApp = () => {
         item={selectedThuTuc}
       />
 
-      <div style={{ flex: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", paddingBottom: 70 }}>
+      <div style={{ flex: 1, overflowY: "auto" }}>
         {loadingNews ? (
-          <div style={{ padding: 20, textAlign: 'center' }}>Đang tải tin tức...</div>
+          <div style={{ padding: 20, textAlign: 'center' }}><Spinner /></div>
         ) : newsList.length > 0 && (
           <Box mt={2} px={4}>
             <div 
@@ -1028,7 +1039,9 @@ const TulanSmartApp = () => {
             >
               <div style={{ display: 'flex', transition: 'transform 0.5s ease', transform: `translateX(-${slide * 100}%)`, height: '100%' }}>
                 {newsList.map((item, idx) => (
-                  <div key={idx} style={{ width: '100%', flexShrink: 0, height: '100%', cursor: 'pointer', position: 'relative' }} onClick={() => api.openWebview({ url: item.link })}>
+                  <div key={idx} style={{ width: '100%', flexShrink: 0, height: '100%', cursor: 'pointer', position: 'relative' }} onClick={() => {
+                    api.openWebview({ url: item.link });
+                  }}>
                     {item.anh ? <img src={item.anh} alt={item.tieuDe} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       : <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #0068ff, #00aaff)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 18, fontWeight: 'bold', textAlign: 'center', padding: 20 }}>{item.tieuDe}</div>
                     }
@@ -1053,10 +1066,12 @@ const TulanSmartApp = () => {
               style={{ background: '#fff', borderRadius: 16, padding: 12, textAlign: 'center', cursor: 'pointer', border: '1px solid #e6f0ff', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', transition: 'all 0.2s' }} 
               onTouchStart={(e) => { e.currentTarget.style.transform = 'scale(0.95)'; e.currentTarget.style.background = '#f5faff'; }} 
               onTouchEnd={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.background = '#fff'; }} 
-              onClick={() => api.openWebview({ url: "https://tu-lan-dvc-ai-v3.vercel.app/" })}
+              onClick={() => {
+                api.openWebview({ url: "https://tu-lan-dvc-ai-v3.vercel.app/" });
+              }}
             >
               <img src="images/icon_chatbot.png" style={{ width: 60, height: 60 }} alt="Chatbot AI" />
-              <Text weight="bold" size="medium" style={{ color: '#0068ff' }}>Chatbot AI</Text>
+              <Text weight="bold" size="medium" style={{ color: '#0068ff' }}>Chatbot AI <br/> Dịch vụ công</Text>
             </div>
             <div 
               style={{ background: '#fff', borderRadius: 16, padding: 12, textAlign: 'center', cursor: 'pointer', border: '1px solid #e6f0ff', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', transition: 'all 0.2s' }} 
@@ -1072,108 +1087,133 @@ const TulanSmartApp = () => {
           </div>
         </Box>
 
-        {/* Grid các chức năng (homeItems) */}
+        {/* 🔥 MENU PHÂN TRANG (CHUẨN ZALO) */}
         <Box mt={6} px={4}>
-          <div style={{ background: "#fff", borderRadius: 20, padding: "16px 12px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 18, maxHeight: "55vh", overflowY: "auto", WebkitOverflowScrolling: "touch" }}>
-            {homeItems.map((item) => {
-              const originalIndex = allItems.findIndex(orig => orig.id === item.id);
-              const colorIdx = originalIndex !== -1 ? originalIndex : 0;
-              return (
-                <div 
-                  key={item.id} 
-                  onClick={item.action} 
-                  style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "all 0.2s" }} 
-                  onTouchStart={(e) => {
-                    e.currentTarget.style.transform = "scale(0.92)";
-                    e.currentTarget.style.opacity = "0.7";
-                  }} 
-                  onTouchEnd={(e) => {
-                    e.currentTarget.style.transform = "scale(1)";
-                    e.currentTarget.style.opacity = "1";
-                  }}
-                >
-                  <div style={{ width: 64, height: 64, borderRadius: 18, background: iconColors[colorIdx % iconColors.length], display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8, boxShadow: "0 4px 8px rgba(0,0,0,0.1)" }}>
-                    {item.isEmoji ? (
-                      <span style={{ fontSize: 36 }}>{item.icon}</span>
-                    ) : (
-                      <img
-                        src={item.icon}
-                        alt={item.title}
-                        style={{ width: 45, height: 45 }}
-                        onError={(e) => { e.currentTarget.style.display = "none"; }}
-                      />
-                    )}
-                  </div>
-                  <div style={{ textAlign: "center", fontWeight: 600, fontSize: 12, color: "#1a1a1a", lineHeight: 1.3, maxWidth: "100%", wordBreak: "break-word", whiteSpace: "normal" }}>
-                    {item.title}
-                  </div>
-                </div>
-              );
-            })}
-            {/* 🔥 XEM THÊM chuyên nghiệp */}
+          <div
+            style={{
+              overflow: "hidden",
+              borderRadius: 20,
+              background: "#fff",
+              padding: "16px 12px"
+            }}
+          >
+            {/* SLIDER */}
             <div
-              onClick={() => setViewMore(true)}
+              onTouchStart={handleMenuTouchStart}
+              onTouchMove={handleMenuTouchMove}
+              onTouchEnd={handleMenuTouchEnd}
               style={{
                 display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                transition: "all 0.25s"
-              }}
-              onTouchStart={(e) => {
-                e.currentTarget.style.transform = "scale(0.9)";
-              }}
-              onTouchEnd={(e) => {
-                e.currentTarget.style.transform = "scale(1)";
+                width: `${pages.length * 100}%`,
+                transform: `translateX(-${menuPage * (100 / pages.length)}%)`,
+                transition: "transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1)",
+                willChange: "transform"
               }}
             >
-              <div
-                style={{
-                  width: 64,
-                  height: 64,
-                  borderRadius: 20,
-                  background: "linear-gradient(135deg, #0068ff, #00c6ff)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginBottom: 8,
-                  boxShadow: "0 6px 16px rgba(0,104,255,0.3)",
-                  position: "relative"
-                }}
-              >
+              {pages.map((pageItems, pageIndex) => (
                 <div
+                  key={pageIndex}
                   style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: "50%",
-                    background: "rgba(255,255,255,0.2)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center"
+                    width: `${100 / pages.length}%`,
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, 1fr)",
+                    gap: 18
                   }}
                 >
-                  <span
-                    style={{
-                      fontSize: 20,
-                      color: "#fff",
-                      transform: "translateX(2px)"
-                    }}
-                  >
-                    ➜
-                  </span>
+                  {pageItems.map((item) => {
+                    const originalIndex = allItems.findIndex(orig => orig.id === item.id);
+                    const colorIdx = originalIndex !== -1 ? originalIndex : 0;
+
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={() => {
+                          item.action();
+                        }}
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "flex-start",
+                          cursor: "pointer",
+                          height: 110
+                        }}
+                        onTouchStart={(e) => {
+                          e.currentTarget.style.transform = "scale(0.92)";
+                          e.currentTarget.style.opacity = "0.7";
+                        }}
+                        onTouchEnd={(e) => {
+                          e.currentTarget.style.transform = "scale(1)";
+                          e.currentTarget.style.opacity = "1";
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: 64,
+                            height: 64,
+                            borderRadius: 18,
+                            background: iconColors[colorIdx % iconColors.length],
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            marginBottom: 8
+                          }}
+                        >
+                          <img
+                            src={item.icon}
+                            alt={item.title}
+                            style={{ width: 45, height: 45 }}
+                            onError={(e) => { e.currentTarget.style.display = "none"; }}
+                          />
+                        </div>
+
+                        <div
+                          style={{
+                            textAlign: "center",
+                            fontWeight: 600,
+                            fontSize: 12,
+                            lineHeight: 1.4,
+                            height: 34,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                          }}
+                        >
+                          {item.title}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              </div>
+              ))}
+            </div>
+
+            {/* DOT INDICATOR */}
+            {pages.length > 1 && (
               <div
                 style={{
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: "#0068ff"
+                  display: "flex",
+                  justifyContent: "center",
+                  marginTop: 12,
+                  gap: 6
                 }}
               >
-                Xem thêm
+                {pages.map((_, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => setMenuPage(idx)}
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: "50%",
+                      background: menuPage === idx ? "#0068ff" : "#ccc",
+                      cursor: "pointer",
+                      transition: "background 0.2s"
+                    }}
+                  />
+                ))}
               </div>
-            </div>
+            )}
           </div>
         </Box>
 
@@ -1182,11 +1222,11 @@ const TulanSmartApp = () => {
       </div>
 
       <AppFooter
-        onHome={() => { setViewMore(false); changeView("home"); }}
+        onHome={() => setScreen("home")}
         onContact={() => api.openWebview({ url: "https://zalo.me/155482019626526050" })}
-        onHotline={() => setShowHotline(true)}
+        onHotline={() => setScreen("hotline")}
         onManage={() => setShowManageModal(true)}
-        isHomeActive={view === 'home' && !viewMore}
+        isHomeActive={screen === "home"}
       />
 
       {/* 🔥 Modal quản lý VIP */}
